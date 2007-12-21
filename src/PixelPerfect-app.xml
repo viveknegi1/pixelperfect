@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application xmlns="http://ns.adobe.com/air/application/1.0.M6">
+<application xmlns="http://ns.adobe.com/air/application/1.0">
 	<name>PixelPerfect</name>
-	<id>PixelPerfect</id>
+	<id>com.adobe.pixelperfect</id>
 	<filename>PixelPerfect</filename>
 	<version>v1</version>
 	<description>Measure the pixel dimensions of objects on your screen. Created by Christian Cantrell.</description>

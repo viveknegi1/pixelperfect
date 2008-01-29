@@ -9,7 +9,7 @@
 
 	<initialWindow>
 		<content>[This value will be overwritten by Flex Builder in the output app.xml]</content>
-		<!-- <title>PixelPerfect</title> -->
+		<title>PixelPerfect</title>
 		<systemChrome>none</systemChrome>
 		<transparent>true</transparent>
 		<visible>false</visible>

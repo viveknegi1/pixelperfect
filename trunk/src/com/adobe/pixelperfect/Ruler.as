@@ -114,11 +114,13 @@ package com.adobe.pixelperfect
 			{
 				xNum = new TextField();
 				xNum.defaultTextFormat = tickFormat;
+				xNum.selectable = false;
 				xNum.height = 15;
 				xNum.text = String(i * 50);
 				xTicks.push(xNum);
 				yNum = new TextField();
 				yNum.defaultTextFormat = tickFormat;
+				yNum.selectable = false;
 				yNum.height = 15;
 				yNum.width = 10;
 				yNum.text = String(i * 50);
@@ -146,6 +148,7 @@ package com.adobe.pixelperfect
 			dimensions.width = 100;
 			dimensions.height = 20;
 			dimensions.border = false;
+			dimensions.selectable = false;
 			dimensions.defaultTextFormat = dimFormat;
 			sprite.addChild(dimensions);
 			updateDimensions();

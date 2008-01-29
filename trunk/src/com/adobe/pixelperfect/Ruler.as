@@ -1,5 +1,6 @@
 package com.adobe.pixelperfect
 {
+	import flash.desktop.NativeApplication;
 	import flash.display.NativeWindow;
 	import flash.display.NativeWindowInitOptions;
 	import flash.display.NativeWindowResize;
@@ -14,15 +15,12 @@ package com.adobe.pixelperfect
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.net.URLRequest;
-	import flash.net.navigateToURL;
-	import flash.desktop.NativeApplication;
+	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
 	import flash.ui.Keyboard;
-	import flash.filesystem.File;
 
     /**
     * The Ruler class extends NativeWindow to add the ruler window
@@ -53,6 +51,8 @@ package com.adobe.pixelperfect
 			winArgs.systemChrome = NativeWindowSystemChrome.NONE;
 			winArgs.transparent = true;
 			super(winArgs);
+			
+			this.title = "PixelPerfect";
 
 			// Configure the window
 			this.alwaysInFront = false;
@@ -169,12 +169,10 @@ package com.adobe.pixelperfect
 			switch (e.target)
 			{
 				case preset800x600MenuItem:
-					width = 800;
-					height = 600;
+					this.bounds = new Rectangle(this.x, this.y, 800, 600);
 					break;
 				case preset1024x768MenuItem:
-					width = 1024;
-					height = 768;
+					this.bounds = new Rectangle(this.x, this.y, 1024, 768);
 					break;
 			}
 		}

@@ -153,8 +153,8 @@ package com.adobe.pixelperfect
 			dimensions.selectable = false;
 			dimensions.defaultTextFormat = dimFormat;
 			sprite.addChild(dimensions);
-			updateDimensions();
-			drawTicks();
+			updateDimensions(width, height);
+			drawTicks(width, height);
 			visible = true;
 		}
 				
@@ -209,11 +209,11 @@ package com.adobe.pixelperfect
 		}
 		
 		// Update the label for the window dimensions
-		private function updateDimensions():void
+		private function updateDimensions(_width:int, _height:int):void
 		{
-			dimensions.text = width + " x " + height;
-			dimensions.x = (width / 2) - (dimensions.width / 2);
-			dimensions.y = (height / 2) - (dimensions.height / 2);
+			dimensions.text = _width + " x " + _height;
+			dimensions.x = (_width / 2) - (dimensions.width / 2);
+			dimensions.y = (_height / 2) - (dimensions.height / 2);
 		}
 		
 		// Change the window opacity when the mouse wheel is rotated
@@ -268,23 +268,23 @@ package com.adobe.pixelperfect
 		// Redraw the window when a resize event is dispatched
 		private function onWindowResize(e:NativeWindowBoundsEvent):void
 		{
-			drawTicks();
-			updateDimensions();
+			drawTicks(e.afterBounds.width, e.afterBounds.height);
+			updateDimensions(e.afterBounds.width, e.afterBounds.height);
 		}
 		
 		// Draw the ruler tick marks
-		private function drawTicks():void
+		private function drawTicks(_width:int, _height:int):void
 		{
 			sprite.graphics.clear();
 			sprite.graphics.beginFill(0x8597f3);
-			sprite.graphics.drawRect(0, 0, width, height);
+			sprite.graphics.drawRect(0, 0, _width, _height);
 			sprite.graphics.endFill();
 			
 			var len:uint = 0;
 			var num:TextField;
 			var i:uint;
 
-			for (i = 10; i < width; i += 5)
+			for (i = 10; i < _width; i += 5)
 			{
 				if ((i % 50) == 0)
 				{
@@ -311,15 +311,15 @@ package com.adobe.pixelperfect
 				sprite.graphics.drawRect(i+1, 1, 1, len);
 
 				// black bottom
-				if (i < width - 5)
+				if (i < _width - 5)
 				{
 					sprite.graphics.beginFill(0x000000);
-					sprite.graphics.drawRect(i, height - len, 1, len);
+					sprite.graphics.drawRect(i, _height - len, 1, len);
 				}
 			}
 
 			len = 0;
-			for (i = 10; i < height; i += 5)
+			for (i = 10; i < _height; i += 5)
 			{
 				if ((i % 50) == 0)
 				{
@@ -346,10 +346,10 @@ package com.adobe.pixelperfect
 				sprite.graphics.drawRect(1, i+1, len, 1);
 
 				// black right
-				if (i < height - 5)
+				if (i < _height - 5)
 				{
 					sprite.graphics.beginFill(0x000000);
-					sprite.graphics.drawRect(width - len, i, len, 1);
+					sprite.graphics.drawRect(_width - len, i, len, 1);
 				}
 			}
 			sprite.graphics.endFill();

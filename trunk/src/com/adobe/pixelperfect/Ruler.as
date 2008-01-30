@@ -154,7 +154,6 @@ package com.adobe.pixelperfect
 			dimensions.defaultTextFormat = dimFormat;
 			sprite.addChild(dimensions);
 			updateDimensions();
-			
 			drawTicks();
 			visible = true;
 		}
@@ -377,28 +376,24 @@ package com.adobe.pixelperfect
 						height += 1;
 					else
 						y += 1;
-					drawTicks();
 					break;
 				case Keyboard.UP:
 					if (e.shiftKey)
 						height -= 1;
 					else
 						y -= 1;
-					drawTicks();
 					break;
 				case Keyboard.RIGHT:
 					if (e.shiftKey)
 						width += 1;
 					else
 						x += 1;
-					drawTicks();
 					break;
 				case Keyboard.LEFT:
 					if (e.shiftKey)
 						width -= 1;
 					else
 						x -= 1;
-					drawTicks();
 					break;
 				case 78:
 					if (e.ctrlKey)

@@ -14,6 +14,7 @@ package com.adobe.pixelperfect
 	import flash.events.FullScreenEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.NativeWindowBoundsEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.text.TextField;
@@ -53,6 +54,7 @@ package com.adobe.pixelperfect
 			super(winArgs);
 			
 			this.title = "PixelPerfect";
+			this.activate();
 
 			// Configure the window
 			this.alwaysInFront = false;
@@ -265,7 +267,7 @@ package com.adobe.pixelperfect
 		}
 		
 		// Redraw the window when a resize event is dispatched
-		private function onWindowResize(e:Event):void
+		private function onWindowResize(e:NativeWindowBoundsEvent):void
 		{
 			drawTicks();
 			updateDimensions();

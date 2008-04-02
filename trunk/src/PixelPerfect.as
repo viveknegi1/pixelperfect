@@ -47,12 +47,6 @@ package
 		public function PixelPerfect()
 		{
 			NativeApplication.nativeApplication.autoExit = true;
-			NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE, onInvoke);
-		}
-		
-		//Create a new Ruler window, then close this window
-		private function onInvoke(e:InvokeEvent):void
-		{
 			new Ruler();
 			stage.nativeWindow.close();  // Get rid of this window so the app will close when the last ruler is closed.
 		}

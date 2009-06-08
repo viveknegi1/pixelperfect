@@ -1,15 +1,53 @@
+/*
+    Adobe Systems Incorporated(r) Source Code License Agreement
+    Copyright(c) 2005 Adobe Systems Incorporated. All rights reserved.
+    
+    Please read this Source Code License Agreement carefully before using
+    the source code.
+    
+    Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+    no-charge, royalty-free, irrevocable copyright license, to reproduce,
+    prepare derivative works of, publicly display, publicly perform, and
+    distribute this source code and such derivative works in source or 
+    object code form without any attribution requirements.  
+    
+    The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+    derived from the source code without prior written permission.
+    
+    You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+    against any loss, damage, claims or lawsuits, including attorney's 
+    fees that arise or result from your use or distribution of the source 
+    code.
+    
+    THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+    ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+    NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+    OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 package com.adobe.pixelperfect
 {
+	import flash.desktop.Clipboard;
+	import flash.desktop.ClipboardFormats;
 	import flash.desktop.NativeApplication;
+	import flash.display.NativeMenu;
+	import flash.display.NativeMenuItem;
 	import flash.display.NativeWindow;
 	import flash.display.NativeWindowInitOptions;
 	import flash.display.NativeWindowResize;
 	import flash.display.NativeWindowSystemChrome;
+	import flash.display.NativeWindowType;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageDisplayState;
 	import flash.display.StageScaleMode;
-	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
 	import flash.events.FullScreenEvent;
 	import flash.events.KeyboardEvent;
@@ -19,10 +57,8 @@ package com.adobe.pixelperfect
 	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
-	import flash.ui.ContextMenu;
-	import flash.ui.ContextMenuItem;
 	import flash.ui.Keyboard;
-
+	
     /**
     * The Ruler class extends NativeWindow to add the ruler window
     * features. Because Ruler does not extend Sprite, it cannot be used
@@ -38,22 +74,33 @@ package com.adobe.pixelperfect
 		private var sprite:Sprite;
 		private var dimensions:TextField;
 
-		private var newRulerMenuItem:ContextMenuItem;
-		private var fullScreenMenuItem:ContextMenuItem;
-		private var preset800x600MenuItem:ContextMenuItem;
-		private var preset1024x768MenuItem:ContextMenuItem;
-		private var onTopMenuItem:ContextMenuItem;
-		private var closeMenuItem:ContextMenuItem;
-		private var exitMenuItem:ContextMenuItem;
+		private var cm:NativeMenu;
+		private var newRulerMenuItem:NativeMenuItem;
+		private var fullScreenMenuItem:NativeMenuItem;
+		private var presetsMenuItem:NativeMenuItem;
+		private var preset800x600MenuItem:NativeMenuItem;
+		private var preset1024x768MenuItem:NativeMenuItem;
+		private var preset1280x800MenuItem:NativeMenuItem;
+		private var onTopMenuItem:NativeMenuItem;
+		private var copyMenuItem:NativeMenuItem;
+		private var copyWidthMenuItem:NativeMenuItem;
+		private var copyHeightMenuItem:NativeMenuItem;
+		private var closeMenuItem:NativeMenuItem;
+		private var exitMenuItem:NativeMenuItem;
+		private var hrMenuItem:NativeMenuItem;
+		private var helpMenuItem:NativeMenuItem;
+		
+		private var tooltip:Tooltip;
 		
 		public function Ruler(width:uint = 300, height:uint = 300, x:uint = 50, y:uint = 50, alpha:Number = .4)
 		{
 			var winArgs:NativeWindowInitOptions = new NativeWindowInitOptions();
+			winArgs.type = NativeWindowType.UTILITY;
 			winArgs.systemChrome = NativeWindowSystemChrome.NONE;
 			winArgs.transparent = true;
 			super(winArgs);
 			
-			this.title = "PixelPerfect";
+			this.title = "PixelWindow";
 			this.activate();
 
 			// Configure the window
@@ -62,40 +109,60 @@ package com.adobe.pixelperfect
 			this.y = y;
 			this.width = width;
 			this.height = height;
-			minSize = new Point(30,30);
-			maxSize = new Point(2000,2000);
+			minSize = new Point(15,15);
 
 			// Create the drawing sprite
 			sprite = new Sprite();
 			sprite.alpha = alpha;
 			sprite.useHandCursor = true;
+			sprite.buttonMode = true;
 
 			// Configure the context menu
-			stage.showDefaultContextMenu = true;
-			var cm:ContextMenu = new ContextMenu();
-			cm.hideBuiltInItems();
-			newRulerMenuItem = new ContextMenuItem("New");
-			fullScreenMenuItem = new ContextMenuItem("Full Screen");
-			preset800x600MenuItem = new ContextMenuItem("800x600");
-			preset1024x768MenuItem = new ContextMenuItem("1024x768");
-			onTopMenuItem = new ContextMenuItem("Keep On Top");
-			exitMenuItem = new ContextMenuItem("Exit");
-			closeMenuItem = new ContextMenuItem("Close Window");
-			newRulerMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onNewRulerMenuItem);
-			fullScreenMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onFullScreenMenuItem);
-			preset800x600MenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, resizeTo);
-			preset1024x768MenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, resizeTo);
-			onTopMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, toggleAlwaysInFront);
-			closeMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onCloseMenuItem);
-			exitMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onExitMenuItem);
-			cm.customItems.push(newRulerMenuItem);
-			cm.customItems.push(fullScreenMenuItem);
-			cm.customItems.push(preset800x600MenuItem);
-			cm.customItems.push(preset1024x768MenuItem);
-			cm.customItems.push(onTopMenuItem);
-			cm.customItems.push(closeMenuItem);
-			cm.customItems.push(exitMenuItem);
-			sprite.contextMenu = cm;
+			this.cm = new NativeMenu();
+			
+			this.newRulerMenuItem = new NativeMenuItem("New");
+			this.fullScreenMenuItem = new NativeMenuItem("Full Screen");
+			this.presetsMenuItem = new NativeMenuItem("Presets");
+			this.preset800x600MenuItem = new NativeMenuItem("800x600");
+			this.preset1024x768MenuItem = new NativeMenuItem("1024x768");
+			this.preset1280x800MenuItem = new NativeMenuItem("1280x800");
+			this.onTopMenuItem = new NativeMenuItem("Keep On Top");
+			this.copyMenuItem = new NativeMenuItem("Copy");
+			this.copyWidthMenuItem = new NativeMenuItem("Width");
+			this.copyHeightMenuItem = new NativeMenuItem("Height");
+			this.exitMenuItem = new NativeMenuItem("Exit");
+			this.closeMenuItem = new NativeMenuItem("Close Window");
+			this.hrMenuItem = new NativeMenuItem(null, true);
+			this.helpMenuItem = new NativeMenuItem("Help");
+
+			this.newRulerMenuItem.addEventListener(Event.SELECT, onNewRulerMenuItem);
+			this.fullScreenMenuItem.addEventListener(Event.SELECT, onFullScreenMenuItem);
+			this.preset800x600MenuItem.addEventListener(Event.SELECT, resizeTo);
+			this.preset1024x768MenuItem.addEventListener(Event.SELECT, resizeTo);
+			this.preset1280x800MenuItem.addEventListener(Event.SELECT, resizeTo);
+			this.copyWidthMenuItem.addEventListener(Event.SELECT, onCopy);
+			this.copyHeightMenuItem.addEventListener(Event.SELECT, onCopy);
+			this.onTopMenuItem.addEventListener(Event.SELECT, toggleAlwaysInFront);
+			this.closeMenuItem.addEventListener(Event.SELECT, onCloseMenuItem);
+			this.exitMenuItem.addEventListener(Event.SELECT, onExitMenuItem);
+			this.helpMenuItem.addEventListener(Event.SELECT, onHelpMenuItem);
+
+			this.cm.addItem(this.newRulerMenuItem);
+			this.cm.addItem(this.fullScreenMenuItem);
+			this.presetsMenuItem.submenu = new NativeMenu();
+			this.presetsMenuItem.submenu.addItem(this.preset800x600MenuItem);
+			this.presetsMenuItem.submenu.addItem(this.preset1024x768MenuItem);
+			this.presetsMenuItem.submenu.addItem(this.preset1280x800MenuItem);
+			this.cm.addItem(this.presetsMenuItem);
+			this.cm.addItem(this.onTopMenuItem);
+			this.copyMenuItem.submenu = new NativeMenu();
+			this.copyMenuItem.submenu.addItem(this.copyWidthMenuItem);
+			this.copyMenuItem.submenu.addItem(this.copyHeightMenuItem);
+			this.cm.addItem(this.copyMenuItem);
+			this.cm.addItem(this.closeMenuItem);
+			this.cm.addItem(this.exitMenuItem);
+			this.cm.addItem(this.hrMenuItem);
+			this.cm.addItem(this.helpMenuItem);
 
 			// Configure the stage
 			stage.align = StageAlign.TOP_LEFT;
@@ -117,12 +184,14 @@ package com.adobe.pixelperfect
 				xNum = new TextField();
 				xNum.defaultTextFormat = tickFormat;
 				xNum.selectable = false;
+				xNum.mouseEnabled = false;
 				xNum.height = 15;
 				xNum.text = String(i * 50);
 				xTicks.push(xNum);
 				yNum = new TextField();
 				yNum.defaultTextFormat = tickFormat;
 				yNum.selectable = false;
+				yNum.mouseEnabled = false;
 				yNum.height = 15;
 				yNum.width = 10;
 				yNum.text = String(i * 50);
@@ -131,7 +200,9 @@ package com.adobe.pixelperfect
 
 			// Set up event listeners
 			this.addEventListener(Event.RESIZE, onWindowResize);
+			this.addEventListener(Event.CLOSING, onClosing);
 			sprite.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			sprite.addEventListener(MouseEvent.RIGHT_CLICK, onRightClick);
 			sprite.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
 			sprite.doubleClickEnabled = true;
 			sprite.addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
@@ -151,13 +222,14 @@ package com.adobe.pixelperfect
 			dimensions.height = 20;
 			dimensions.border = false;
 			dimensions.selectable = false;
+			dimensions.mouseEnabled = false;
 			dimensions.defaultTextFormat = dimFormat;
-			sprite.addChild(dimensions);
+			this.stage.addChild(dimensions);
 			updateDimensions(width, height);
 			drawTicks(width, height);
 			visible = true;
 		}
-				
+
 		private function toggleAlwaysInFront(e:Event):void
 		{
 			this.alwaysInFront = !this.alwaysInFront;
@@ -175,17 +247,37 @@ package com.adobe.pixelperfect
 				case preset1024x768MenuItem:
 					this.bounds = new Rectangle(this.x, this.y, 1024, 768);
 					break;
+				case preset1280x800MenuItem:
+					this.bounds = new Rectangle(this.x, this.y, 1280, 800);
+					break;
 			}
+		}
+
+		// Handle copying to the clipboard
+		private function onCopy(e:Event):void
+		{
+			var toCopy:String;
+			var dimString:String = this.dimensions.text;
+			switch (e.target)
+			{
+				case copyWidthMenuItem:
+					toCopy = dimString.substring(0, dimString.indexOf("x") - 1);
+					break;
+				case copyHeightMenuItem:
+					toCopy = dimString.substring(dimString.indexOf("x") + 2, dimString.length);
+					break;
+			}
+			Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, toCopy);
 		}
 		
 		// Handle the new ruler command in the context menu
-		private function onNewRulerMenuItem(e:ContextMenuEvent):void
+		private function onNewRulerMenuItem(e:Event):void
 		{
 			createNewRuler();
 		}
 		
 		// Handle the fullscreen mode toggle command in the context menu
-		private function onFullScreenMenuItem(e:ContextMenuEvent):void
+		private function onFullScreenMenuItem(e:Event):void
 		{
 			stage.displayState = (stage.displayState == StageDisplayState.NORMAL) ? StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
 		}
@@ -193,27 +285,76 @@ package com.adobe.pixelperfect
         // Handle the fullscreen event
 		private function onFullScreen(e:FullScreenEvent):void
 		{
-			fullScreenMenuItem.caption = (e.fullScreen) ? "Full Screen Off" : "Full Screen";
+			fullScreenMenuItem.label = (e.fullScreen) ? "Full Screen Off" : "Full Screen";
 		}
 		
 		// Handle the close window command in the context menu
-		private function onCloseMenuItem(e:ContextMenuEvent):void
+		private function onCloseMenuItem(e:Event):void
 		{
+			this.onClosing(e);
 			 close();	
 		}
 		
+		// Handling the closing event
+		private function onClosing(e:Event):void
+		{
+			this.closeTooltip();
+		}
+		
+		private function closeTooltip():void
+		{
+			if (this.tooltip != null)
+			{
+				this.tooltip.close();
+				this.tooltip = null;
+			}
+		}
+		
 		// Handle the exit command in the context menu
-		private function onExitMenuItem(e:ContextMenuEvent):void
+		private function onExitMenuItem(e:Event):void
 		{
 			NativeApplication.nativeApplication.exit();
+		}
+
+		// Handle the help command in the context menu
+		private function onHelpMenuItem(e:Event):void
+		{
+			new HelpWindow().activate();
 		}
 		
 		// Update the label for the window dimensions
 		private function updateDimensions(_width:int, _height:int):void
 		{
-			dimensions.text = _width + " x " + _height;
+			if (_width < 70 || _height < 30)
+			{
+				if (this.tooltip == null)
+				{
+					this.dimensions.visible = false;
+					this.tooltip = new Tooltip();
+				}
+			}
+			else
+			{
+				this.dimensions.visible = true;
+				if (this.tooltip != null)
+				{
+					this.closeTooltip();
+				}
+			}
 			dimensions.x = (_width / 2) - (dimensions.width / 2);
 			dimensions.y = (_height / 2) - (dimensions.height / 2);
+			var dimString:String = _width + " x " + _height;
+			dimensions.text = dimString;
+			if (this.tooltip != null)
+			{
+				this.tooltip.text = dimString;
+			}
+		}
+		
+		// Handle the context menu
+		private function onRightClick(e:MouseEvent):void
+		{
+			this.cm.display(this.stage, e.stageX, e.stageY);
 		}
 		
 		// Change the window opacity when the mouse wheel is rotated
@@ -291,8 +432,10 @@ package com.adobe.pixelperfect
 					len = 15;
 					num = TextField(xTicks[i/50]);
 					if (sprite.contains(num))
-						sprite.removeChild(num);
-					sprite.addChild(num);
+					{
+						this.stage.removeChild(num);
+					}
+					this.stage.addChild(num);
 					num.width = 100;
 					num.x = (i < 100) ? i - 9 : i - 12;
 					num.y = 15;
@@ -326,8 +469,10 @@ package com.adobe.pixelperfect
 					len = 15;
 					num = TextField(yTicks[i/50]);
 					if (sprite.contains(num))
-						sprite.removeChild(num);
-					sprite.addChild(num);
+					{
+						this.stage.removeChild(num);
+					}
+					this.stage.addChild(num);
 					num.width = 100;
 					num.x = 17,
 					num.y = i - 8;
@@ -358,6 +503,7 @@ package com.adobe.pixelperfect
 		// Close the window on a double-click event
 		private function onDoubleClick(e:Event):void
 		{
+			this.onClosing(e);
 			close();
 		}
 		
@@ -369,36 +515,37 @@ package com.adobe.pixelperfect
 		// Handle keyboard events
 		private function onKeyDown(e:KeyboardEvent):void
 		{
+			var delta:uint = (e.shiftKey) ? 5 : 1;
 			switch (e.keyCode)
 			{
 				case Keyboard.DOWN:
-					if (e.shiftKey)
-						height += 1;
+					if (e.ctrlKey)
+						this.height += delta;
 					else
-						y += 1;
+						this.y += delta;
 					break;
 				case Keyboard.UP:
-					if (e.shiftKey)
-						height -= 1;
+					if (e.ctrlKey)
+						this.height -= delta;
 					else
-						y -= 1;
+						this.y -= delta;
 					break;
 				case Keyboard.RIGHT:
-					if (e.shiftKey)
-						width += 1;
+					if (e.ctrlKey)
+						this.width += delta;
 					else
-						x += 1;
+						this.x += delta;
 					break;
 				case Keyboard.LEFT:
-					if (e.shiftKey)
-						width -= 1;
+					if (e.ctrlKey)
+						this.width -= delta;
 					else
-						x -= 1;
+						this.x -= delta;
 					break;
 				case 78:
 					if (e.ctrlKey)
 					{
-						createNewRuler();
+						this.createNewRuler();
 					}
 					break;
 			}					

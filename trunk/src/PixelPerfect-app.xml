@@ -1,34 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application xmlns="http://ns.adobe.com/air/application/1.0">
-	<name>PixelPerfect</name>
-	<id>com.adobe.pixelperfect</id>
-	<filename>PixelPerfect</filename>
-	<version>v1</version>
+<application xmlns="http://ns.adobe.com/air/application/1.5">
+	<name>PixelWindow</name>
+	<id>com.christiancantrell.pixelwindow</id>
+	<filename>PixelWindow</filename>
+	<version>1.1</version>
 	<description>Measure the pixel dimensions of objects on your screen. Created by Christian Cantrell.</description>
-	<copyright>Copyright © 2007 Adobe Systems Incorporated. All rights reserved.</copyright>
+	<copyright>Copyright © 2009 Cantrell Media Company. All rights reserved.</copyright>
 
 	<initialWindow>
 		<content>[This value will be overwritten by Flex Builder in the output app.xml]</content>
-		<title>PixelPerfect</title>
+		<title>PixelWindow</title>
 		<systemChrome>none</systemChrome>
 		<transparent>true</transparent>
 		<visible>false</visible>
-		<!--<minimizable></minimizable>-->
-		<!--<maximizable></maximizable>-->
-		<!--<resizable></resizable>-->
-		<!--<width></width>-->
-		<!--<height></height>-->
-		<!-- <x></x> -->
-		<!-- <y></y> -->
-		<!-- <minSize></minSize> -->
-		<!-- <maxSize></maxSize> -->
 	</initialWindow>
 
-	<installFolder>AIR Examples</installFolder>
-	<programMenuFolder>AIR Examples</programMenuFolder>
-
 	<icon>
-		<image128x128>icons/AIRApp_128.png</image128x128>
+		<image128x128>icons/pw_icon.png</image128x128>
 	</icon>
 
 </application>

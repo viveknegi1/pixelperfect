@@ -92,7 +92,7 @@ package com.adobe.pixelperfect
 		
 		private var tooltip:Tooltip;
 		
-		public function Ruler(width:uint = 300, height:uint = 300, x:uint = 50, y:uint = 50, alpha:Number = .4)
+		public function Ruler(width:uint = 300, height:uint = 300, x:int = 50, y:int = 50, alpha:Number = .4)
 		{
 			var winArgs:NativeWindowInitOptions = new NativeWindowInitOptions();
 			winArgs.type = NativeWindowType.UTILITY;

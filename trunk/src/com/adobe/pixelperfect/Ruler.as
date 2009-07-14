@@ -95,7 +95,7 @@ package com.adobe.pixelperfect
 		public function Ruler(width:uint = 300, height:uint = 300, x:int = 50, y:int = 50, alpha:Number = .4)
 		{
 			var winArgs:NativeWindowInitOptions = new NativeWindowInitOptions();
-			winArgs.type = NativeWindowType.UTILITY;
+			winArgs.type = NativeWindowType.NORMAL;
 			winArgs.systemChrome = NativeWindowSystemChrome.NONE;
 			winArgs.transparent = true;
 			super(winArgs);
